@@ -46,6 +46,16 @@
 ## Metaprogramming for dummies
 ### Louis Dionne, C++Now 2016
 
+<!--
+TRY TO:
+    + show some real-world repetitive C++ code
+    + Show stuff that people write in Python
+    + Show what we would like to "express" in C++
+
+DO NOT FORGET:
+    + Focus on things that will make them more productive on a daily basis
+    + This is for beginners
+ -->
 ==============================================================================
 
 ### Why do we need this talk?
@@ -68,52 +78,92 @@
 
 ====================
 
-### A first example: euclidean distance
+### A first example: multiple return values
 
-$$
-  \mathrm{distance}\left((x_1, y_1), (x_2, y_2)\right)
-      := \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}
-$$
+<!-- TODO:
+    Find an interesting example of multiple return values. This will introduce
+    tuple through one of its most common use cases. Then, show something repetitive
+    we might want to perform on the return values in the tuple. Use Hana to
+    remove the repetition.
 
-<!-- TODO: This example is actually not very good, because it could be achieved better with std::array. -->
-
-----
-
-<!-- TODO: Show the C++ code for the function in 2 dimensions -->
-
-----
-
-### But how would we do it in n dimensions?
-
-<!-- TODO: Show code in C++ using std::vectors -->
-
-----
-
-### Caveats
-
-1. No compile-time bounds checking
-2. Both vectors have to be the same length (not known at compile time)
-3. Optimizer does not know the number of steps in the loop
-
-----
-
-<!-- TODO: Show the code in Python -->
-
-----
-
-<!-- TODO: Show the code with Hana -->
-
-Note:
-Python is executed at runtime.
-Hana is executed partly at compile-time. The length of the tuples are known
-at compile-time, so the loop can be unrolled and bounds checking is done at
-compile-time.
-
-Unrolling can be good or bad because of code bloat, see your use case.
+    Covers:
+        - hana::tuple
+        - hana::for_each
+-->
 
 ====================
 
+### Network protocols
 
+<!-- TODO:
+    Show example based on Thomas Rodger's presentation at CppCon 2014.
+
+    Covers
+        - Adapting user defined types
+-->
+
+====================
+
+### Event system
+
+<!-- TODO:
+    Show a simple example of an event system. The events are compile-time
+    strings and they are fixed at compile-time. We can dynamically add
+    listeners to an event. This is basically a map of compile-time strings
+    to std::vector<std::function>.
+
+    Covers:
+        - hana::map
+        - compile-time strings
+        - could expand to cover hana::find
+-->
+
+====================
+
+### Class registration
+
+<!-- TODO:
+    We have a list of classes known at compile-time. We want to perform some
+    function for each class at program initialization.
+
+    Introduces:
+        - hana::type
+-->
+
+====================
+
+### ...
+
+<!-- TODO:
+    Find an interesting example with type traits, to show how types can be
+    manipulated.
+
+    Covers:
+        - hana::type
+        - type traits
+-->
+
+====================
+
+### Dimensional analysis
+
+<!-- TODO:
+    Implement a basic system for dimensional analysis (see MPL book p.39).
+
+    Covers:
+        - type-level computations
+        - hana::fold, hana::zip
+-->
+
+====================
+
+### Bonus: automatic parallelization
+
+<!-- TODO:
+    Show a simple example of how we can build a network of computations whose
+    dependencies are known at compile-time, and then order them to satisfy the
+    dependencies and finally run them in parallel. This might be too advanced.
+-->
 
 ====================
 

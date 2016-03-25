@@ -48,7 +48,72 @@
 
 ==============================================================================
 
-<!-- TODO: content -->
+### Why do we need this talk?
+
+----
+
+### Because metaprogramming is hard?
+
+----
+
+### Or because it's taught the wrong way?
+
+----
+
+### I think it's the latter
+
+====================
+
+### I'll do my best to break the mold
+
+====================
+
+### A first example: euclidean distance
+
+$$
+  \mathrm{distance}\left((x_1, y_1), (x_2, y_2)\right)
+      := \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}
+$$
+
+<!-- TODO: This example is actually not very good, because it could be achieved better with std::array. -->
+
+----
+
+<!-- TODO: Show the C++ code for the function in 2 dimensions -->
+
+----
+
+### But how would we do it in n dimensions?
+
+<!-- TODO: Show code in C++ using std::vectors -->
+
+----
+
+### Caveats
+
+1. No compile-time bounds checking
+2. Both vectors have to be the same length (not known at compile time)
+3. Optimizer does not know the number of steps in the loop
+
+----
+
+<!-- TODO: Show the code in Python -->
+
+----
+
+<!-- TODO: Show the code with Hana -->
+
+Note:
+Python is executed at runtime.
+Hana is executed partly at compile-time. The length of the tuples are known
+at compile-time, so the loop can be unrolled and bounds checking is done at
+compile-time.
+
+Unrolling can be good or bad because of code bloat, see your use case.
+
+====================
+
+
 
 ====================
 

@@ -60,6 +60,11 @@ DO NOT FORGET:
 
 ### Why do we need this talk?
 
+<!--
+If needed, define new MathJax commands just below this to avoid seeing
+them load on the first slide.
+-->
+
 ----
 
 ### Because metaprogramming is hard?
@@ -75,6 +80,256 @@ DO NOT FORGET:
 ====================
 
 ### I'll do my best to break the mold
+#### But please forget what you already know <!-- .element class="fragment" -->
+
+==============================================================================
+
+## Kinds of computation in C++
+
+====================
+
+### Runtime computations (classic)
+
+----
+
+### Runtime sequences
+
+```c++
+std::vector<int> ints{1, 2, 3, 4};
+```
+
+----
+
+### Runtime functions
+
+```c++
+std::string f(int i) {
+  return std::to_string(i * i);
+}
+
+std::string nine = f(3);
+```
+
+----
+
+### Runtime algorithms
+
+```c++
+std::vector<std::string> strings;
+std::transform(ints.begin(), ints.end(),
+               std::back_inserter(strings), f);
+```
+
+====================
+
+### `constexpr` computations
+
+----
+
+### `constexpr` sequences
+
+```c++
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+```
+
+----
+
+### `constexpr` functions
+
+```c++
+constexpr int factorial(int n) {
+  return n == 0 ? 1 : n * factorial(n - 1);
+}
+
+constexpr int six = factorial(3);
+```
+
+----
+
+### `constexpr` algorithms
+
+```c++
+template <typename T, std::size_t N, typename F>
+  constexpr std::array<std::result_of_t<F(T)>, N>
+transform(std::array<T, N> array, F f) {
+  // ...
+}
+
+constexpr std::array<int, 4> ints{1, 2, 3, 4};
+constexpr std::array<int, 4> facts = transform(ints, factorial);
+```
+
+====================
+
+### No surprise so far
+
+====================
+
+### In Python, we can write
+
+```python
+xs = [1, "two", 3.3]
+print type(xs[0])
+print type(xs[1])
+print type(xs[2])
+```
+
+```
+<type 'int'>
+<type 'str'>
+<type 'float'>
+```
+
+
+Note:
+The list conceptually contains objects of different types.
+
+----
+
+### Not possible in C++
+
+```c++
+struct Cat  { };
+struct Dog  { };
+struct Fish { };
+
+std::vector<???> xs{Cat{}, Dog{}, Fish{}};
+std::cout << typeid(xs[0]).name() << std::endl;
+std::cout << typeid(xs[1]).name() << std::endl;
+std::cout << typeid(xs[2]).name() << std::endl;
+```
+
+----
+
+### We do have polymorphism
+
+----
+
+### Well, runtime polymorphism
+
+```c++
+struct Animal { virtual ~Animal() { } };
+struct Cat  : Animal { };
+struct Dog  : Animal { };
+struct Fish : Animal { };
+
+std::vector<Animal*> xs{new Cat, new Dog, new Fish};
+std::cout << typeid(*xs[0]).name() << std::endl;
+std::cout << typeid(*xs[1]).name() << std::endl;
+std::cout << typeid(*xs[2]).name() << std::endl;
+//           ^^^^^^^^^^^^^^ non-trivial runtime work done here
+```
+
+```
+Cat
+Dog
+Fish
+```
+
+Note:
+The vector really contains pointers, which have a single type.
+The _actual_ types of the elements is not known until runtime.
+
+====================
+
+### If the number of elements is known in advance...
+
+----
+
+### Then we also have static polymorphism
+
+```c++
+struct Cat  { }; //
+struct Dog  { }; // No need for inheritance and virtual functions
+struct Fish { }; //
+
+std::tuple<Cat, Dog, Fish> xs{Cat{}, Dog{}, Fish{}};
+std::cout << typeid(std::get<0>(xs)).name() << std::endl;
+std::cout << typeid(std::get<1>(xs)).name() << std::endl;
+std::cout << typeid(std::get<2>(xs)).name() << std::endl;
+//           ^^^^^^^^^^^^^^^^^^^^^^^ known at compile-time
+```
+
+```
+Cat
+Dog
+Fish
+```
+
+----
+
+### Which brings us to...
+
+====================
+
+### Heterogeneous computations
+
+----
+
+### Heterogeneous sequences
+
+```c++
+std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+```
+
+----
+
+### Heterogeneous functions
+
+```c++
+struct to_string {
+  template <typename T>
+  std::string operator()(T t) const {
+    std::stringstream ss;
+    ss << t;
+    return ss.str();
+  }
+};
+
+std::string three = to_string{}(3);
+std::string pi = to_string{}(3.14159);
+```
+
+----
+
+### Heterogeneous algorithms
+
+```c++
+std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+std::tuple<std::string, std::string, std::string> strings =
+              std::transform(seq, to_string{});
+```
+
+====================
+
+### This is where (static) metaprogramming happens
+
+==============================================================================
+
+## Part 2...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ====================
 
@@ -120,7 +375,8 @@ DO NOT FORGET:
 
 ====================
 
-### Class registration
+### Manipulating types
+
 
 <!-- TODO:
     We have a list of classes known at compile-time. We want to perform some
@@ -129,6 +385,12 @@ DO NOT FORGET:
     Introduces:
         - hana::type
 -->
+
+<!-- NOTE:
+    We can introduce type computations by introducing RTTI and type_index.
+    Then, we introduce STI (static type information) as hana::type, and show
+    how it can be used.
+ -->
 
 ====================
 

@@ -62,13 +62,6 @@ append_cxx_flag(HAS_WNO_UNUSED_VARIABLE            -Wno-unused-variable)
 
 
 #=============================================================================
-# Setup the `sampler` executable
-#=============================================================================
-include_directories(sampler)
-add_executable(sampler sampler/sampler.cpp)
-
-
-#=============================================================================
 # Setup code samples
 #=============================================================================
 enable_testing()
@@ -87,16 +80,3 @@ add_custom_target(check ALL
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     DEPENDS samples
     COMMENT "Build all the samples and then run them.")
-
-#=============================================================================
-# Setup the index.html target
-#=============================================================================
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/index.html
-    COMMAND sampler ${CMAKE_CURRENT_SOURCE_DIR}/index.in.html
-                    ${CMAKE_CURRENT_SOURCE_DIR}/index.html
-                    ${CODE_SAMPLES}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/index.in.html samples sampler
-    COMMENT "Generating index.html from index.in.html and source code samples."
-)
-
-add_custom_target(index ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/index.html)

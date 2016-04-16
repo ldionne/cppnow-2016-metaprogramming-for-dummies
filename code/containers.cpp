@@ -13,6 +13,7 @@ namespace hana = boost::hana;
 struct Cat  { std::string name; };
 struct Dog  { std::string name; };
 struct Fish { std::string name; };
+// ... comparison operators ...
 // end-sample
 
 bool operator==(Cat const& a, Cat const& b) { return a.name == b.name; }

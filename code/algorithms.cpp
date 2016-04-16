@@ -14,6 +14,8 @@ struct Cat  { std::string name; };
 struct Dog  { std::string name; };
 struct Fish { std::string name; };
 
+// ... comparison operators ...
+
 auto animals = hana::make_tuple(
     Fish{"Nemo"}, Dog{"Beethoven"}, Cat{"Garfield"}, Dog{"Snoopy"}
 );

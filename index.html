@@ -85,6 +85,134 @@ them load on the first slide.
 ==============================================================================
 
 ## Part 1
+### Why you need metaprogramming
+
+====================
+
+### Let's register classes
+
+<pre><code class="sample" sample="code/classreg_naive.cpp#main"></code></pre>
+
+----
+
+### What if there are many of them?
+
+----
+
+### Classic solution
+
+<pre><code class="sample" sample="code/classreg_recursive.cpp#main"></code></pre>
+
+----
+
+### Drawbacks
+
+- Not straightforward
+- Not reusable
+
+----
+
+### In Python, we can write
+
+```python
+class A: pass
+class B: pass
+class C: pass
+
+def register(classes):
+    for c in classes:
+        print "Registering " + c.__name__
+
+register([A, B, C])
+```
+
+Note:
+This works because types are first class citizens
+
+----
+
+### What we would like to write in C++
+
+```c++
+void register_(std::vector<...> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << sizeof(c) << std::endl;
+}
+
+int main() {
+    std::vector<...> classes{...};
+    register_(classes);
+}
+```
+
+Note:
+We can't use std::type_info, because we need the size of each __type__, not
+that of `std::type_info` itself. This is a reasonable requirement.
+
+====================
+
+### You liked the classic solution?
+### Try to register the classes in order of increasing size <!-- .element class="fragment" -->
+
+====================
+
+### Let's generate JSON
+
+```c++
+struct Person {
+    std::string name;
+    int age;
+};
+
+int main() {
+    Person joe{"Joe", 30};
+    std::cout << to_json(joe);
+}
+```
+
+----
+
+### In Python, we could write
+
+```python
+def to_json(obj):
+    members = []
+    for member in obj.__dict__:
+        members.append('"' + member + '" : ' +
+                            str(getattr(obj, member)))
+    return '{' + ', '.join(members) + '}'
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+print to_json(Person("John", 30))
+```
+
+Note:
+Of course, this is a simplified version and it only handles objects.
+
+----
+
+### In C++, not so
+
+```c++
+template <typename T>
+std::string to_json(T const& obj) {
+    std::vector<std::string> members;
+    for (std::string const& member : obj.__members__()) // ???
+        members.push_back('"' + member + "\" : " +
+                                to_json(obj.__get__(member))); // ???
+
+    return boost::algorithm::join(members, ", ");
+}
+```
+
+==============================================================================
+
+## Interlude
 ### Kinds of computation in C++
 
 ====================
@@ -307,7 +435,7 @@ std::tuple<std::string, std::string, std::string> strings =
 
 ==============================================================================
 
-## Part 2
+## Part 3
 ### Heterogeneous algorithms
 
 ====================
@@ -360,7 +488,7 @@ std::tuple<std::string, std::string, std::string> strings =
 
 ==============================================================================
 
-## Part 3
+## Part 4
 ### Heterogeneous data structures
 
 Note:

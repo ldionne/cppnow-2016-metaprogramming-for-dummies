@@ -17,9 +17,9 @@ struct Dog  { std::string name; };
 struct Fish { std::string name; };
 // ... comparison operators ...
 
-auto animals = hana::make_tuple(
+hana::tuple<Fish, Dog, Cat, Dog> animals{
     Fish{"Nemo"}, Dog{"Beethoven"}, Cat{"Garfield"}, Dog{"Snoopy"}
-);
+};
 // end-sample
 
 bool operator==(Cat const& a, Cat const& b) { return a.name == b.name; }
@@ -39,6 +39,18 @@ assert(animals[1_c] == Dog{"Beethoven"});
 assert(animals[2_c] == Cat{"Garfield"});
 assert(animals[3_c] == Dog{"Snoopy"});
 // end-sample
+
+{
+// sample(anon_struct)
+struct {
+    Fish _0; Dog _1; Cat _2; Dog _3;
+} xs{Fish{"Nemo"}, Dog{"Beethoven"}, Cat{"Garfield"}, Dog{"Snoopy"}};
+
+std::cout << typeid(xs._0).name() << std::endl;
+std::cout << typeid(xs._1).name() << std::endl;
+std::cout << typeid(xs._2).name() << std::endl;
+// end-sample
+}
 
 // sample(insert)
 auto more_animals = hana::insert(animals, 2_c, Dog{"Scooby Doo"});

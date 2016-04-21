@@ -362,11 +362,7 @@ std::cout << typeid(xs[2]).name() << std::endl;
 
 ----
 
-### We do have polymorphism
-
-----
-
-### Well, runtime polymorphism
+### Well, we do have runtime polymorphism
 
 ```c++
 struct Animal { virtual ~Animal() { } };
@@ -391,31 +387,9 @@ Note:
 The vector really contains pointers, which have a single type.
 The _actual_ types of the elements is not known until runtime.
 
-====================
-
-### If the number of elements is known in advance...
-
 ----
 
-### Then we also have static polymorphism
-
-```c++
-struct Cat  { }; //
-struct Dog  { }; // No need for inheritance and virtual functions
-struct Fish { }; //
-
-std::tuple<Cat, Dog, Fish> xs{Cat{}, Dog{}, Fish{}};
-std::cout << typeid(std::get<0>(xs)).name() << std::endl;
-std::cout << typeid(std::get<1>(xs)).name() << std::endl;
-std::cout << typeid(std::get<2>(xs)).name() << std::endl;
-//           ^^^^^^^^^^^^^^^^^^^^^^^ known at compile-time
-```
-
-```
-Cat
-Dog
-Fish
-```
+### But we're really manipulating pointers to a single type
 
 ----
 
@@ -431,8 +405,6 @@ Fish
 
 ```c++
 hana::tuple<int, std::string, float> seq{1, "abc", 3.4f};
-
-hana::string<'f', 'o', 'o', 'b', 'a', 'r'> foobar;
 
 auto map = hana::make_map(
     hana::make_pair("one"_s, 1),
@@ -489,6 +461,9 @@ hana::tuple<std::string, std::string, std::string> strings =
 ### Heterogeneous data structures and algorithms
 
 Note:
+By now, I would expect the audience to understand what is the particularity
+of the data structures and algorithms we will be considering (i.e. heterogeneous).
+
 Just like at runtime, it makes sense to have different data structures in
 the heterogeneous world.
 
@@ -507,6 +482,12 @@ The simplest and most useful container.
 ### Indexing
 
 <pre><code class="sample" sample="code/tuple.cpp#indexing"></code></pre>
+
+----
+
+### Basically equivalent to
+
+<pre><code class="sample" sample="code/tuple.cpp#anon_struct"></code></pre>
 
 ----
 

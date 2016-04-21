@@ -95,7 +95,7 @@ them load on the first slide.
 
 ----
 
-### What if there are many of them?
+### How to allow registering many at once?
 
 ----
 
@@ -146,14 +146,30 @@ int main() {
 }
 ```
 
+----
+
+### Why this doesn't work?
+
+```c++
+void register_(std::vector<std::type_info> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << sizeof(c) << std::endl;
+}
+
+int main() {
+    std::vector<std::type_info> classes{typeid(A), typeid(B),
+                                        typeid(C)};
+    register_(classes);
+}
+```
+
 Note:
-We can't use std::type_info, because we need the size of each __type__, not
-that of `std::type_info` itself. This is a reasonable requirement.
+We need the size of each __type__, not that of `std::type_info` itself.
+This is a reasonable requirement.
 
-====================
-
-### You liked the classic solution?
-### Try to register the classes in order of increasing size <!-- .element class="fragment" -->
+Also, if `type_info` provided a `size()` method, it would still not be
+available at compile-time.
 
 ====================
 
@@ -212,19 +228,29 @@ std::string to_json(T const& obj) {
 
 ==============================================================================
 
-## Interlude
-### Kinds of computation in C++
+## Part 2
+### The three worlds of C++
+
+Note:
+By now, I would expect the audience to understand why metaprogramming might
+be useful in the context of C++.
 
 ====================
 
-### Runtime computations (classic)
+## The runtime realm
 
 ----
 
-### Runtime sequences
+### Runtime sequences and data types
 
 ```c++
 std::vector<int> ints{1, 2, 3, 4};
+
+std::string foobar = "foobar";
+
+std::unordered_map<std::string, int> map{
+    {"one", 1}, {"two", 2}, {"three", 3}
+};
 ```
 
 ----
@@ -251,14 +277,16 @@ std::transform(ints.begin(), ints.end(),
 
 ====================
 
-### `constexpr` computations
+## The constexpr kingdom
 
 ----
 
-### `constexpr` sequences
+### `constexpr` sequences and data types
 
 ```c++
 constexpr std::array<int, 4> ints{1, 2, 3, 4};
+
+constexpr std::string_view foobar = "foobar";
 ```
 
 ----
@@ -291,6 +319,10 @@ constexpr std::array<int, 4> facts = transform(ints, factorial);
 ====================
 
 ### No surprise so far
+
+----
+
+### What's the third world?
 
 ====================
 
@@ -391,14 +423,22 @@ Fish
 
 ====================
 
-### Heterogeneous computations
+## The heterogeneous territory
 
 ----
 
-### Heterogeneous sequences
+### Heterogeneous sequences and data types
 
 ```c++
-std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+hana::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+
+hana::string<'f', 'o', 'o', 'b', 'a', 'r'> foobar;
+
+auto map = hana::make_map(
+    hana::make_pair("one"_s, 1),
+    hana::make_pair("two"_s, 2),
+    hana::make_pair("three"_s, 3)
+);
 ```
 
 ----
@@ -424,72 +464,29 @@ std::string pi = to_string{}(3.14159);
 ### Heterogeneous algorithms
 
 ```c++
-std::tuple<int, std::string, float> seq{1, "abc", 3.4f};
-std::tuple<std::string, std::string, std::string> strings =
-              std::transform(seq, to_string{});
+hana::tuple<int, std::string, float> seq{1, "abc", 3.4f};
+hana::tuple<std::string, std::string, std::string> strings =
+              hana::transform(seq, to_string{});
 ```
 
 ====================
 
-### This is where (static) metaprogramming happens
+### This place was once engulfed into darkness
+
+----
+
+### But now, it's a magic place where (static) metaprogramming happens
+
+----
+
+### You might even get lucky
+
+<img src="img/unicorn.png" width="50%" height="50%"></img>
 
 ==============================================================================
 
 ## Part 3
-### Heterogeneous algorithms
-
-====================
-
-### Setup
-
-<pre><code class="sample" sample="code/algorithms.cpp#setup"></code></pre>
-
-====================
-
-### Iterating
-
-<pre><code class="sample" sample="code/algorithms.cpp#for_each"></code></pre>
-
-====================
-
-### Transforming
-
-<pre><code class="sample" sample="code/algorithms.cpp#transform"></code></pre>
-
-====================
-
-### Removing some elements
-
-<pre><code class="sample" sample="code/algorithms.cpp#remove_if"></code></pre>
-
-====================
-
-### Partitioning
-
-<pre><code class="sample" sample="code/algorithms.cpp#partition"></code></pre>
-
-====================
-
-### Searching
-
-<pre><code class="sample" sample="code/algorithms.cpp#find_if"></code></pre>
-
-====================
-
-### Counting
-
-<pre><code class="sample" sample="code/algorithms.cpp#count_if"></code></pre>
-
-====================
-
-### Reversing
-
-<pre><code class="sample" sample="code/algorithms.cpp#reverse"></code></pre>
-
-==============================================================================
-
-## Part 4
-### Heterogeneous data structures
+### Heterogeneous data structures and algorithms
 
 Note:
 Just like at runtime, it makes sense to have different data structures in
@@ -497,29 +494,110 @@ the heterogeneous world.
 
 ====================
 
-### Setup
-
-<pre><code class="sample" sample="code/containers.cpp#setup"></code></pre>
-
-====================
-
 ### Tuple
 
-<pre><code class="sample" sample="code/containers.cpp#tuple"></code></pre>
+<pre><code class="sample" sample="code/tuple.cpp#setup"></code></pre>
 
 Note:
 Equivalent to std::vector for the heterogeneous world.
 The simplest and most useful container.
 
+----
+
+### Indexing
+
+<pre><code class="sample" sample="code/tuple.cpp#indexing"></code></pre>
+
+----
+
+### Inserting
+
+<pre><code class="sample" sample="code/tuple.cpp#insert"></code></pre>
+
+----
+
+### Removing
+
+<pre><code class="sample" sample="code/tuple.cpp#remove_at"></code></pre>
+
+----
+
+### Iterating
+
+<pre><code class="sample" sample="code/tuple.cpp#for_each"></code></pre>
+
+----
+
+### Transforming
+
+<pre><code class="sample" sample="code/tuple.cpp#transform"></code></pre>
+
+----
+
+### Filtering out
+
+<pre><code class="sample" sample="code/tuple.cpp#remove_if"></code></pre>
+
+----
+
+### Partitioning
+
+<pre><code class="sample" sample="code/tuple.cpp#partition"></code></pre>
+
+----
+
+### Searching
+
+<pre><code class="sample" sample="code/tuple.cpp#find_if"></code></pre>
+
+----
+
+### Counting
+
+<pre><code class="sample" sample="code/tuple.cpp#count_if"></code></pre>
+
+----
+
+### Reversing
+
+<pre><code class="sample" sample="code/tuple.cpp#reverse"></code></pre>
+
 ====================
 
 ### Map
 
-<pre><code class="sample" sample="code/containers.cpp#map"></code></pre>
+<pre><code class="sample" sample="code/map.cpp#setup"></code></pre>
 
+----
 
+### Accessing keys
 
+<pre><code class="sample" sample="code/map.cpp#accessing"></code></pre>
 
+----
+
+### Querying
+
+<pre><code class="sample" sample="code/map.cpp#contains"></code></pre>
+
+----
+
+### Inserting
+
+<pre><code class="sample" sample="code/map.cpp#insert"></code></pre>
+
+----
+
+### Removing
+
+<pre><code class="sample" sample="code/map.cpp#erase_key"></code></pre>
+
+==============================================================================
+
+## Part 4
+### Using our tools
+
+TODO
 
 
 ==============================================================================

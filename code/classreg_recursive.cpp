@@ -10,7 +10,10 @@ class C { };
 
 // sample(main)
 template <typename ...Ts>
-struct register_ {
+struct register_;
+
+template <>
+struct register_<> {
     void operator()() const { }
 };
 

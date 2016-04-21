@@ -1,19 +1,20 @@
 // Copyright Louis Dionne 2016
 // Distributed under the Boost Software License, Version 1.0.
 
+#define BOOST_HANA_CONFIG_ENABLE_STRING_UDL
 #include <boost/hana.hpp>
 
 #include <cassert>
 #include <iostream>
 #include <string>
 namespace hana = boost::hana;
+using namespace hana::literals;
 
 
 // sample(setup)
 struct Cat  { std::string name; };
 struct Dog  { std::string name; };
 struct Fish { std::string name; };
-
 // ... comparison operators ...
 
 auto animals = hana::make_tuple(
@@ -31,6 +32,23 @@ bool operator==(Fish const& a, Fish const& b) { return a.name == b.name; }
 bool operator!=(Fish const& a, Fish const& b) { return a.name != b.name; }
 
 int main() {
+
+// sample(indexing)
+assert(animals[0_c] == Fish{"Nemo"});
+assert(animals[1_c] == Dog{"Beethoven"});
+assert(animals[2_c] == Cat{"Garfield"});
+assert(animals[3_c] == Dog{"Snoopy"});
+// end-sample
+
+// sample(insert)
+auto more_animals = hana::insert(animals, 2_c, Dog{"Scooby Doo"});
+assert(more_animals[2_c] == Dog{"Scooby Doo"}); // used to be Garfield
+// end-sample
+
+// sample(remove_at)
+auto fewer_animals = hana::remove_at(animals, 1_c);
+assert(fewer_animals[1_c] == Cat{"Garfield"}); // used to be Beethoven
+// end-sample
 
 // sample(for_each)
 // like std::for_each!

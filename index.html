@@ -233,9 +233,9 @@ Now, we'll try to develop our own basic solutions to solve the problems above.
 ```c++
 double, double, double
 from_spherical(double r, double theta, double phi) {
-    double x = r * sin(theta) * cos(phi);
-    double y = r * sin(phi) * sin(phi);
-    double z = r * cos(theta);
+    double x = r * std::sin(theta) * std::cos(phi);
+    double y = r * std::sin(phi) * std::sin(phi);
+    double z = r * std::cos(theta);
     return (x, y, z);
 }
 
@@ -246,20 +246,7 @@ double (x, y, z) = from_spherical(3, 16.5, 25.5);
 
 ### Use `std::tuple`
 
-```c++
-std::tuple<double, double, double>
-from_spherical(double r, double theta, double phi) {
-    double x = r * sin(theta) * cos(phi);
-    double y = r * sin(phi) * sin(phi);
-    double z = r * cos(theta);
-    return {x, y, z};
-}
-
-std::tuple<double, double, double> xyz = from_spherical(3, 16.5, 25.5);
-double x = std::get<0>(xyz),
-       y = std::get<1>(xyz),
-       z = std::get<2>(xyz);
-```
+<pre><code class="sample" sample="code/std_tuple.cpp#spherical"></code></pre>
 
 ----
 
@@ -284,20 +271,7 @@ double x = xyz._0,
 
 ### A sequence that can hold different types
 
-```c++
-struct Fish { };
-struct Cat { };
-struct Dog { };
-
-std::tuple<Fish, Cat, Dog> my_animals() {
-    // ...
-}
-
-std::tuple<Fish, Cat, Dog> animals = my_animals();
-Fish fish = std::get<0>(animals);
-Cat  cat  = std::get<1>(animals);
-Dog  dog  = std::get<2>(animals);
-```
+<pre><code class="sample" sample="code/std_tuple.cpp#animals"></code></pre>
 
 ----
 
@@ -353,11 +327,9 @@ int main() {
 ```
 
 Note:
-We need the size of each __type__, not that of `std::type_info` itself.
-This is a reasonable requirement.
-
-Also, if `type_info` provided a `size()` method, it would still not be
-available at compile-time.
+1. We need the size of each __type__, not that of `std::type_info` itself.
+2. We can't store `std::type_info` in a vector, because not Copyable
+3. Even if `type_info` provided a `size()` method, it would only be available at runtime.
 
 ----
 

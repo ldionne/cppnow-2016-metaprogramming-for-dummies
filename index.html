@@ -206,6 +206,15 @@ std::string to_json(T const& obj) {
 }
 ```
 
+====================
+
+### ...
+
+<!-- TODO:
+    Find an interesting example with type traits, to show how types can be
+    manipulated. The goal is to show pure-type computations; nothing runtime.
+-->
+
 ==============================================================================
 
 ## Part 2
@@ -560,21 +569,6 @@ The simplest and most useful container.
 
 ==============================================================================
 
-### A first example: multiple return values
-
-<!-- TODO:
-    Find an interesting example of multiple return values. This will introduce
-    tuple through one of its most common use cases. Then, show something repetitive
-    we might want to perform on the return values in the tuple. Use Hana to
-    remove the repetition.
-
-    Covers:
-        - hana::tuple
-        - hana::for_each
--->
-
-====================
-
 ### Network protocols
 
 <!-- TODO:
@@ -598,38 +592,6 @@ The simplest and most useful container.
         - hana::map
         - compile-time strings
         - could expand to cover hana::find
--->
-
-====================
-
-### Manipulating types
-
-
-<!-- TODO:
-    We have a list of classes known at compile-time. We want to perform some
-    function for each class at program initialization.
-
-    Introduces:
-        - hana::type
--->
-
-<!-- NOTE:
-    We can introduce type computations by introducing RTTI and type_index.
-    Then, we introduce STI (static type information) as hana::type, and show
-    how it can be used.
- -->
-
-====================
-
-### ...
-
-<!-- TODO:
-    Find an interesting example with type traits, to show how types can be
-    manipulated.
-
-    Covers:
-        - hana::type
-        - type traits
 -->
 
 ====================

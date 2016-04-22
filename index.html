@@ -77,7 +77,7 @@ them load on the first slide.
 
 ### I think it's the latter
 
-====================
+----
 
 ### I'll do my best to break the mold
 #### But please forget what you already know <!-- .element class="fragment" -->
@@ -102,6 +102,11 @@ them load on the first slide.
 ### Classic solution
 
 <pre><code class="sample" sample="code/classreg_recursive.cpp#main"></code></pre>
+
+Note:
+Calling `register_` several times manually is not an option; assume you need
+to know all the types that will be registered at once (you could need the
+total size of the types, or something like that).
 
 ----
 
@@ -145,31 +150,6 @@ int main() {
     register_(classes);
 }
 ```
-
-----
-
-### Why this doesn't work?
-
-```c++
-void register_(std::vector<std::type_info> const& classes) {
-    for (auto c : classes)
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << sizeof(c) << std::endl;
-}
-
-int main() {
-    std::vector<std::type_info> classes{typeid(A), typeid(B),
-                                        typeid(C)};
-    register_(classes);
-}
-```
-
-Note:
-We need the size of each __type__, not that of `std::type_info` itself.
-This is a reasonable requirement.
-
-Also, if `type_info` provided a `size()` method, it would still not be
-available at compile-time.
 
 ====================
 
@@ -229,231 +209,236 @@ std::string to_json(T const& obj) {
 ==============================================================================
 
 ## Part 2
-### The three worlds of C++
+### Introducing heterogeneity
 
 Note:
 By now, I would expect the audience to understand why metaprogramming might
 be useful in the context of C++.
 
+Now, we'll try to develop our own basic solutions to solve the problems above.
+
 ====================
 
-## The runtime realm
-
-----
-
-### Runtime sequences and data types
+### Have you ever tried returning multiple values from a function?
 
 ```c++
-std::vector<int> ints{1, 2, 3, 4};
-
-std::string foobar = "foobar";
-
-std::unordered_map<std::string, int> map{
-    {"one", 1}, {"two", 2}, {"three", 3}
-};
-```
-
-----
-
-### Runtime functions
-
-```c++
-std::string f(int i) {
-  return std::to_string(i * i);
+double, double, double from_spherical(double r, double theta, double phi) {
+    // ...
 }
 
-std::string nine = f(3);
+double x, y, z;
+(x, y, z) = from_spherical(3, 16.5, 25.5);
 ```
 
 ----
 
-### Runtime algorithms
+### Use `std::tuple`
 
 ```c++
-std::vector<std::string> strings;
-std::transform(ints.begin(), ints.end(),
-               std::back_inserter(strings), f);
-```
-
-====================
-
-## The constexpr kingdom
-
-----
-
-### `constexpr` sequences and data types
-
-```c++
-constexpr std::array<int, 4> ints{1, 2, 3, 4};
-
-constexpr std::string_view foobar = "foobar";
-```
-
-----
-
-### `constexpr` functions
-
-```c++
-constexpr int factorial(int n) {
-  return n == 0 ? 1 : n * factorial(n - 1);
+std::tuple<double, double, double>
+from_spherical(double r, double theta, double phi) {
+    // ...
 }
 
-constexpr int six = factorial(3);
+std::tuple<double, double, double> xyz = from_spherical(3, 16.5, 25.5);
+double x = std::get<0>(xyz),
+       y = std::get<1>(xyz),
+       z = std::get<2>(xyz);
 ```
 
 ----
 
-### `constexpr` algorithms
+### Somewhat equivalent to
 
 ```c++
-template <typename T, std::size_t N, typename F>
-  constexpr std::array<std::result_of_t<F(T)>, N>
-transform(std::array<T, N> array, F f) {
-  // ...
-}
+struct {
+    double _0; double _1; double _2;
+} xyz = from_spherical(3, 16.5, 25.5);
 
-constexpr std::array<int, 4> ints{1, 2, 3, 4};
-constexpr std::array<int, 4> facts = transform(ints, factorial);
+double x = xyz._0,
+       y = xyz._1,
+       z = xyz._2;
 ```
-
-====================
-
-### No surprise so far
 
 ----
 
-### What's the third world?
-
-====================
-
-### In Python, we can write
-
-```python
-xs = [1, "two", 3.3]
-print type(xs[0])
-print type(xs[1])
-print type(xs[2])
-```
-
-```
-<type 'int'>
-<type 'str'>
-<type 'float'>
-```
-
-
-Note:
-The list conceptually contains objects of different types.
+### In essence it's like a struct
+### Yet it can be seen like a sequence! <!-- .element: class="fragment" -->
 
 ----
 
-### Not possible in C++
+### The best thing is, it can hold different types
 
 ```c++
-struct Cat  { };
-struct Dog  { };
 struct Fish { };
+struct Cat { };
+struct Dog { };
 
-std::vector<???> xs{Cat{}, Dog{}, Fish{}};
-std::cout << typeid(xs[0]).name() << std::endl;
-std::cout << typeid(xs[1]).name() << std::endl;
-std::cout << typeid(xs[2]).name() << std::endl;
+std::tuple<Fish, Cat, Dog> my_animals() {
+    // ...
+}
+
+std::tuple<Fish, Cat, Dog> animals = my_animals();
+Fish fish = std::get<0>(animals);
+Cat  cat  = std::get<1>(animals);
+Dog  dog  = std::get<2>(animals);
 ```
 
 ----
 
-### Well, we do have runtime polymorphism
+### Somewhat equivalent to
 
 ```c++
-struct Animal { virtual ~Animal() { } };
-struct Cat  : Animal { };
-struct Dog  : Animal { };
-struct Fish : Animal { };
+struct {
+    Fish _0; Cat _1; Dog _2; // notice the members have different types
+} animals = my_animals();
 
-std::vector<Animal*> xs{new Cat, new Dog, new Fish};
-std::cout << typeid(*xs[0]).name() << std::endl;
-std::cout << typeid(*xs[1]).name() << std::endl;
-std::cout << typeid(*xs[2]).name() << std::endl;
-//           ^^^^^^^^^^^^^^ non-trivial runtime work done here
+Fish fish = aniamls._0;
+Cat  cat  = aniamls._1;
+Dog  dog  = aniamls._2;
 ```
 
+====================
+
+### Let's go back to class registration
+
+```c++
+void register_(std::vector<...> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << sizeof(c) << std::endl;
+}
+
+int main() {
+    std::vector<...> classes{...};
+    register_(classes);
+}
 ```
-Cat
-Dog
-Fish
+
+----
+
+### Why this doesn't work?
+
+```c++
+void register_(std::vector<std::type_info> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << sizeof(c) << std::endl;
+}
+
+int main() {
+    std::vector<std::type_info> classes{typeid(A), typeid(B),
+                                        typeid(C)};
+    register_(classes);
+}
 ```
 
 Note:
-The vector really contains pointers, which have a single type.
-The _actual_ types of the elements is not known until runtime.
+We need the size of each __type__, not that of `std::type_info` itself.
+This is a reasonable requirement.
+
+Also, if `type_info` provided a `size()` method, it would still not be
+available at compile-time.
 
 ----
 
-### But we're really manipulating pointers to a single type
-
-----
-
-### Which brings us to...
-
-====================
-
-## The heterogeneous territory
-
-----
-
-### Heterogeneous sequences and data types
+### Solution: a static `type_info`?
 
 ```c++
-hana::tuple<int, std::string, float> seq{1, "abc", 3.4f};
-
-auto map = hana::make_map(
-    hana::make_pair("one"_s, 1),
-    hana::make_pair("two"_s, 2),
-    hana::make_pair("three"_s, 3)
-);
-```
-
-----
-
-### Heterogeneous functions
-
-```c++
-struct to_string {
-  template <typename T>
-  std::string operator()(T t) const {
-    std::stringstream ss;
-    ss << t;
-    return ss.str();
-  }
+template <typename T>
+struct static_type_info {
+    static std::string const name = typeid(T).name();
+    static std::size_t const size = sizeof(T);
+    static std::size_t const alignment = alignof(T);
+    // whatever...
 };
 
-std::string three = to_string{}(3);
-std::string pi = to_string{}(3.14159);
+void register_(std::vector<static_type_info<...>> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name
+                  << ", which is of size " << c.size << std::endl;
+}
+
+int main() {
+    std::vector<...> classes{static_type_info<A>{},
+                             static_type_info<B>{},
+                             static_type_info<C>{}};
+    register_(classes);
+}
 ```
 
 ----
 
-### Heterogeneous algorithms
+### Solution: a heterogeneous vector
 
 ```c++
-hana::tuple<int, std::string, float> seq{1, "abc", 3.4f};
-hana::tuple<std::string, std::string, std::string> strings =
-              hana::transform(seq, to_string{});
+int main() {
+    std::heterogeneous_vector<static_type_info<A>,
+                              static_type_info<B>,
+                              static_type_info<C>> classes;
+    register_(classes);
+}
 ```
 
-====================
+----
 
-### This place was once engulfed into darkness
+### Hey, but that's a tuple!
+
+```c++
+int main() {
+    std::tuple<static_type_info<A>,
+               static_type_info<B>,
+               static_type_info<C>> classes;
+    register_(classes);
+}
+```
 
 ----
 
-### But now, it's a magic place where (static) metaprogramming happens
+### We only have to make this work
+
+```c++
+template <typename ...T>
+void register_(std::tuple<T...> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << c.size() << std::endl;
+}
+```
 
 ----
 
-### You might even get lucky
+### Fortunately, there's Hana
 
-<img src="img/unicorn.png" width="50%" height="50%"></img>
+```c++
+template <typename ...T>
+void register_(std::tuple<T...> const& classes) {
+    // like std::for_each!
+    hana::for_each(classes, [](auto c) {
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << c.size() << std::endl;
+    });
+}
+```
+
+----
+
+### This is equivalent to
+
+```c++
+template <typename ...T>
+void register_(std::tuple<T...> const& classes) {
+    auto f = [](auto c) {
+        std::cout << "Registering " << c.name()
+                  << ", which is of size " << c.size() << std::endl;
+    };
+
+    f(std::get<0>(classes));
+    f(std::get<1>(classes));
+    f(std::get<2>(classes));
+    // ...
+}
+```
 
 ==============================================================================
 
@@ -574,16 +559,6 @@ The simplest and most useful container.
 <pre><code class="sample" sample="code/map.cpp#erase_key"></code></pre>
 
 ==============================================================================
-
-## Part 4
-### Using our tools
-
-TODO
-
-
-==============================================================================
-
-
 
 ### A first example: multiple return values
 

@@ -13,6 +13,7 @@ template <typename T>
 void register_() {
     std::cout << "Registering " << typeid(T).name()
               << ", which is of size " << sizeof(T) << std::endl;
+    static_assert(sizeof(T) <= 1000, "");
 }
 
 int main() {

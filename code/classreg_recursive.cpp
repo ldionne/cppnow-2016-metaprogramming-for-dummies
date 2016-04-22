@@ -22,6 +22,8 @@ struct register_<T, Ts...> {
     void operator()() const {
         std::cout << "Registering " << typeid(T).name()
                   << ", which is of size " << sizeof(T) << std::endl;
+        static_assert(sizeof(T) <= 1000, "");
+
         register_<Ts...>{}();
     }
 };

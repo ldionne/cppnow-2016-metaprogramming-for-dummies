@@ -139,9 +139,11 @@ This works because types are first class citizens
 
 ```c++
 void register_(std::vector<...> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name()
                   << ", which is of size " << sizeof(c) << std::endl;
+        static_assert(sizeof(c) <= 1000, "");
+    }
 }
 
 int main() {
@@ -301,9 +303,9 @@ struct {
     Fish _0; Cat _1; Dog _2; // notice the members have different types
 } animals = my_animals();
 
-Fish fish = aniamls._0;
-Cat  cat  = aniamls._1;
-Dog  dog  = aniamls._2;
+Fish fish = animals._0;
+Cat  cat  = animals._1;
+Dog  dog  = animals._2;
 ```
 
 ====================
@@ -312,9 +314,11 @@ Dog  dog  = aniamls._2;
 
 ```c++
 void register_(std::vector<...> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name()
                   << ", which is of size " << sizeof(c) << std::endl;
+        static_assert(sizeof(c) <= 1000, "");
+    }
 }
 
 int main() {
@@ -329,9 +333,11 @@ int main() {
 
 ```c++
 void register_(std::vector<std::type_info> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name()
                   << ", which is of size " << sizeof(c) << std::endl;
+        static_assert(sizeof(c) <= 1000, "");
+    }
 }
 
 int main() {
@@ -362,9 +368,11 @@ struct static_type_info {
 };
 
 void register_(std::vector<static_type_info<...>> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name
                   << ", which is of size " << c.size << std::endl;
+        static_assert(c.size <= 1000, "");
+    }
 }
 
 int main() {
@@ -385,9 +393,11 @@ of different types in the vector, which we can't do.
 
 ```c++
 void register_(std::heterogeneous_vector<...> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name
                   << ", which is of size " << c.size << std::endl;
+        static_assert(c.size <= 1000, "");
+    }
 }
 
 int main() {
@@ -418,9 +428,11 @@ int main() {
 ```c++
 template <typename ...T>
 void register_(std::tuple<T...> const& classes) {
-    for (auto c : classes)
+    for (auto c : classes) {
         std::cout << "Registering " << c.name
                   << ", which is of size " << c.size << std::endl;
+        static_assert(c.size <= 1000, "");
+    }
 }
 ```
 
@@ -435,6 +447,7 @@ void register_(std::tuple<T...> const& classes) {
     hana::for_each(classes, [](auto c) {
         std::cout << "Registering " << c.name
                   << ", which is of size " << c.size << std::endl;
+        static_assert(c.size <= 1000, "");
     });
 }
 ```
@@ -449,6 +462,7 @@ void register_(std::tuple<T...> const& classes) {
     auto f = [](auto c) {
         std::cout << "Registering " << c.name
                   << ", which is of size " << c.size << std::endl;
+        static_assert(c.size <= 1000, "");
     };
 
     f(std::get<0>(classes));

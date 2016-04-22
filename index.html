@@ -84,8 +84,7 @@ them load on the first slide.
 
 ==============================================================================
 
-## Part 1
-### Why you need metaprogramming
+## Why you need metaprogramming
 
 ====================
 
@@ -217,8 +216,7 @@ std::string to_json(T const& obj) {
 
 ==============================================================================
 
-## Part 2
-### Introducing heterogeneity
+## Introducing heterogeneity
 
 Note:
 By now, I would expect the audience to understand why metaprogramming might
@@ -228,10 +226,11 @@ Now, we'll try to develop our own basic solutions to solve the problems above.
 
 ====================
 
-### Have you ever tried returning multiple values from a function?
+### Ever tried returning multiple values from a function?
 
 ```c++
-double, double, double from_spherical(double r, double theta, double phi) {
+double, double, double
+from_spherical(double r, double theta, double phi) {
     // ...
 }
 
@@ -276,7 +275,7 @@ double x = xyz._0,
 
 ----
 
-### The best thing is, it can hold different types
+### A sequence that can hold different types
 
 ```c++
 struct Fish { };
@@ -326,7 +325,7 @@ int main() {
 
 ----
 
-### Why this doesn't work?
+### Would that work?
 
 ```c++
 void register_(std::vector<std::type_info> const& classes) {
@@ -376,11 +375,21 @@ int main() {
 }
 ```
 
+Note:
+We're close, but for this to work we'd need to be able to store objects
+of different types in the vector, which we can't do.
+
 ----
 
 ### Solution: a heterogeneous vector
 
 ```c++
+void register_(std::heterogeneous_vector<...> const& classes) {
+    for (auto c : classes)
+        std::cout << "Registering " << c.name
+                  << ", which is of size " << c.size << std::endl;
+}
+
 int main() {
     std::heterogeneous_vector<static_type_info<A>,
                               static_type_info<B>,
@@ -410,8 +419,8 @@ int main() {
 template <typename ...T>
 void register_(std::tuple<T...> const& classes) {
     for (auto c : classes)
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size() << std::endl;
+        std::cout << "Registering " << c.name
+                  << ", which is of size " << c.size << std::endl;
 }
 ```
 
@@ -424,8 +433,8 @@ template <typename ...T>
 void register_(std::tuple<T...> const& classes) {
     // like std::for_each!
     hana::for_each(classes, [](auto c) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size() << std::endl;
+        std::cout << "Registering " << c.name
+                  << ", which is of size " << c.size << std::endl;
     });
 }
 ```
@@ -438,8 +447,8 @@ void register_(std::tuple<T...> const& classes) {
 template <typename ...T>
 void register_(std::tuple<T...> const& classes) {
     auto f = [](auto c) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size() << std::endl;
+        std::cout << "Registering " << c.name
+                  << ", which is of size " << c.size << std::endl;
     };
 
     f(std::get<0>(classes));
@@ -451,15 +460,11 @@ void register_(std::tuple<T...> const& classes) {
 
 ==============================================================================
 
-## Part 3
-### Heterogeneous data structures and algorithms
+## Heterogeneous data structures and algorithms
 
 Note:
-By now, I would expect the audience to understand what is the particularity
-of the data structures and algorithms we will be considering (i.e. heterogeneous).
-
-Just like at runtime, it makes sense to have different data structures in
-the heterogeneous world.
+Now, I would expect the audience to understand the basics of tuples, and
+most importantly why tuples can form the basis for metaprogramming.
 
 ====================
 

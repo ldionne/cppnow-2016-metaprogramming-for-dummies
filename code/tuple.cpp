@@ -40,18 +40,6 @@ assert(animals[2_c] == Cat{"Garfield"});
 assert(animals[3_c] == Dog{"Snoopy"});
 // end-sample
 
-{
-// sample(anon_struct)
-struct {
-    Fish _0; Dog _1; Cat _2; Dog _3;
-} xs{Fish{"Nemo"}, Dog{"Beethoven"}, Cat{"Garfield"}, Dog{"Snoopy"}};
-
-std::cout << typeid(xs._0).name() << std::endl;
-std::cout << typeid(xs._1).name() << std::endl;
-std::cout << typeid(xs._2).name() << std::endl;
-// end-sample
-}
-
 // sample(insert)
 auto more_animals = hana::insert(animals, 2_c, Dog{"Scooby Doo"});
 assert(more_animals[2_c] == Dog{"Scooby Doo"}); // used to be Garfield

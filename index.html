@@ -147,7 +147,7 @@ void register_(std::vector<...> const& classes) {
 }
 
 int main() {
-    std::vector<...> classes{...};
+    std::vector<...> classes{A, B, C};
     register_(classes);
 }
 ```
@@ -203,7 +203,7 @@ std::string to_json(T const& obj) {
         members.push_back('"' + member + "\" : " +
                                 to_json(obj.__get__(member))); // ???
 
-    return boost::algorithm::join(members, ", ");
+    return "{" + boost::algorithm::join(members, ", ") + "}";
 }
 ```
 
@@ -233,11 +233,13 @@ Now, we'll try to develop our own basic solutions to solve the problems above.
 ```c++
 double, double, double
 from_spherical(double r, double theta, double phi) {
-    // ...
+    double x = r * sin(theta) * cos(phi);
+    double y = r * sin(phi) * sin(phi);
+    double z = r * cos(theta);
+    return (x, y, z);
 }
 
-double x, y, z;
-(x, y, z) = from_spherical(3, 16.5, 25.5);
+double (x, y, z) = from_spherical(3, 16.5, 25.5);
 ```
 
 ----
@@ -247,7 +249,10 @@ double x, y, z;
 ```c++
 std::tuple<double, double, double>
 from_spherical(double r, double theta, double phi) {
-    // ...
+    double x = r * sin(theta) * cos(phi);
+    double y = r * sin(phi) * sin(phi);
+    double z = r * cos(theta);
+    return {x, y, z};
 }
 
 std::tuple<double, double, double> xyz = from_spherical(3, 16.5, 25.5);
@@ -322,7 +327,7 @@ void register_(std::vector<...> const& classes) {
 }
 
 int main() {
-    std::vector<...> classes{...};
+    std::vector<...> classes{A, B, C};
     register_(classes);
 }
 ```
@@ -480,6 +485,8 @@ Note:
 Now, I would expect the audience to understand the basics of tuples, and
 most importantly why tuples can form the basis for metaprogramming.
 
+TODO: I should have introduced hana::type by now
+
 ====================
 
 ### Tuple
@@ -495,12 +502,6 @@ The simplest and most useful container.
 ### Indexing
 
 <pre><code class="sample" sample="code/tuple.cpp#indexing"></code></pre>
-
-----
-
-### Basically equivalent to
-
-<pre><code class="sample" sample="code/tuple.cpp#anon_struct"></code></pre>
 
 ----
 
@@ -561,6 +562,9 @@ The simplest and most useful container.
 ### Map
 
 <pre><code class="sample" sample="code/map.cpp#setup"></code></pre>
+
+Note:
+TODO: I should have introduced hana::string by now, or use another example
 
 ----
 

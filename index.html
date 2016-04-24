@@ -485,6 +485,11 @@ The simplest and most useful container.
 
 <pre><code class="sample" sample="code/tuple.cpp#indexing"></code></pre>
 
+Note:
+We use the _c UDL to create a compile-time number, which is required by Hana.
+We won't get into the details of the interface, but compile-time numbers are
+required by most functions in Hana.
+
 ----
 
 ### Inserting
@@ -546,7 +551,8 @@ The simplest and most useful container.
 <pre><code class="sample" sample="code/map.cpp#setup"></code></pre>
 
 Note:
-TODO: I should have introduced hana::string by now, or use another example
+We use the _s UDL to create a compile-time strings. This is similar to
+compile-time numbers used before. Note that this is a nonstandard extension.
 
 ----
 

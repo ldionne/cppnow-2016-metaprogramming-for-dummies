@@ -449,6 +449,18 @@ void register_(std::tuple<T...> const& classes) {
 }
 ```
 
+Note:
+Recapitulating:
+1. We create a static type info struct to hold type information at compile-time
+2. We create a tuple of these type infos
+3. We manipulate the elements of the tuple as normal objects to achieve our goal
+
+----
+
+### `hana::type`
+
+<pre><code class="sample" sample="code/classreg_hana.cpp#main"></code></pre>
+
 ==============================================================================
 
 ## Heterogeneous data structures and algorithms
@@ -456,8 +468,6 @@ void register_(std::tuple<T...> const& classes) {
 Note:
 Now, I would expect the audience to understand the basics of tuples, and
 most importantly why tuples can form the basis for metaprogramming.
-
-TODO: I should have introduced hana::type by now
 
 ====================
 

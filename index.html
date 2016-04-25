@@ -88,7 +88,65 @@ them load on the first slide.
 
 ====================
 
-### Let's register classes
+### Generating JSON
+
+```c++
+struct Person {
+    std::string name;
+    int age;
+};
+
+int main() {
+    Person joe{"Joe", 30};
+    std::cout << to_json(joe);
+}
+```
+
+----
+
+### In Python, we could write
+
+```python
+def to_json(obj):
+    members = []
+    for member in obj.__dict__:
+        members.append('"' + member + '" : ' +
+                            str(getattr(obj, member)))
+    return '{' + ', '.join(members) + '}'
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+print to_json(Person("John", 30))
+```
+
+Note:
+Of course, this is a simplified version and it only handles objects.
+
+----
+
+### In C++, not so
+
+```c++
+template <typename T>
+std::string to_json(T const& obj) {
+    std::vector<std::string> members;
+    for (std::string const& member : obj.__members__()) // ???
+        members.push_back('"' + member + "\" : " +
+                                to_json(obj.__get__(member))); // ???
+
+    return "{" + boost::algorithm::join(members, ", ") + "}";
+}
+```
+
+Note:
+We won't talk about reflection in this talk, because it's an introduction only.
+
+====================
+
+### Registering classes
 
 <pre><code class="sample" sample="code/classreg_naive.cpp#main"></code></pre>
 
@@ -154,67 +212,34 @@ int main() {
 
 ====================
 
-### Let's generate JSON
+### Optimizing alignment
 
-```c++
-struct Person {
-    std::string name;
-    int age;
-};
-
-int main() {
-    Person joe{"Joe", 30};
-    std::cout << to_json(joe);
-}
-```
+<pre><code class="sample" sample="code/alignment.cpp#setup"></code></pre>
 
 ----
 
-### In Python, we could write
+### What we would like to write
 
-```python
-def to_json(obj):
-    members = []
-    for member in obj.__dict__:
-        members.append('"' + member + '" : ' +
-                            str(getattr(obj, member)))
-    return '{' + ', '.join(members) + '}'
+```c++
+Type packed_triple(std::vector<Type> types) {
+    std::sort(types.begin(), types.end(), [](auto const& a,
+                                             auto const& b) {
+        return a.alignment() > b.alignment();
+    });
 
-class Person:
-    def __init__(self, name, age):
-        self.name = name
-        self.age = age
+    return Type{Triple<types[0], types[1], types[2]>};
+}
 
-print to_json(Person("John", 30))
+int main() {
+    std::vector<Type> types{A, B, C};
+    Packed = packed_triple(types); // get the type
+    Packed triple{...}; // define an object of that type
+}
 ```
 
 Note:
-Of course, this is a simplified version and it only handles objects.
-
-----
-
-### In C++, not so
-
-```c++
-template <typename T>
-std::string to_json(T const& obj) {
-    std::vector<std::string> members;
-    for (std::string const& member : obj.__members__()) // ???
-        members.push_back('"' + member + "\" : " +
-                                to_json(obj.__get__(member))); // ???
-
-    return "{" + boost::algorithm::join(members, ", ") + "}";
-}
-```
-
-====================
-
-### ...
-
-<!-- TODO:
-    Find an interesting example with type traits, to show how types can be
-    manipulated. The goal is to show pure-type computations; nothing runtime.
--->
+Notice how this sort of computation is completely compile-time. The inputs are
+types and the output is a type too.
 
 ==============================================================================
 
@@ -527,6 +552,21 @@ required by most functions in Hana.
 ### Reversing
 
 <pre><code class="sample" sample="code/tuple.cpp#reverse"></code></pre>
+
+====================
+
+### Let's go back to alignment optimization
+
+<pre><code class="sample" sample="code/alignment.cpp#setup"></code></pre>
+
+Note:
+TODO: Must have introduced `hana::type` by now
+
+----
+
+### Solution: use a tuple!
+
+<pre><code class="sample" sample="code/alignment.cpp#main"></code></pre>
 
 ====================
 

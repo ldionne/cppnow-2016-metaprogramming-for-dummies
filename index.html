@@ -614,54 +614,50 @@ compile-time numbers used before. Note that this is a nonstandard extension.
 
 <pre><code class="sample" sample="code/map.cpp#erase_key"></code></pre>
 
-==============================================================================
+====================
 
-### Network protocols
+### An example: an event system
 
-<!-- TODO:
-    Show example based on Thomas Rodger's presentation at CppCon 2014.
+<pre><code class="sample" sample="code/event.cpp#usage"></code></pre>
 
-    Covers
-        - Adapting user defined types
--->
+----
+
+<pre><code class="sample" sample="code/event.cpp#make_event_handler"></code></pre>
+
+----
+
+<pre><code class="sample" sample="code/event.cpp#event_handler"></code></pre>
 
 ====================
 
-### Event system
+### Applications are endless
 
-<!-- TODO:
-    Show a simple example of an event system. The events are compile-time
-    strings and they are fixed at compile-time. We can dynamically add
-    listeners to an event. This is basically a map of compile-time strings
-    to std::vector<std::function>.
+----
 
-    Covers:
-        - hana::map
-        - compile-time strings
-        - could expand to cover hana::find
--->
+### We saw
 
-====================
+- JSON
+- Class registration
+- Alignment optimization
+- Event systems
 
-### Dimensional analysis
+----
 
-<!-- TODO:
-    Implement a basic system for dimensional analysis (see MPL book p.39).
+### But there's also
 
-    Covers:
-        - type-level computations
-        - hana::fold, hana::zip
--->
+- Dimensional analysis
+- Serialization
+- Automatic paralellization
+- Domain specific languages
+- Expression templates
 
 ====================
 
-### Bonus: automatic parallelization
+### Hana is in Boost
 
-<!-- TODO:
-    Show a simple example of how we can build a network of computations whose
-    dependencies are known at compile-time, and then order them to satisfy the
-    dependencies and finally run them in parallel. This might be too advanced.
--->
+----
+
+### Use it!
 
 ====================
 

@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 namespace hana = boost::hana;
 using namespace hana::literals;
 
@@ -87,6 +88,23 @@ assert(mammals == hana::make_tuple(Cat{"Garfield"}, Dog{"Beethoven"}));
 }
 
 {
+// sample(sort)
+hana::tuple<hana::type<char[10]>,
+            hana::type<char[5]>,
+            hana::type<char[1]>> types;
+
+// like std::sort!
+auto sorted = hana::sort(types, [](auto t, auto u) {
+    return hana::sizeof_(t) < hana::sizeof_(u);
+});
+
+assert((sorted == hana::tuple<hana::type<char[1]>,
+                              hana::type<char[5]>,
+                              hana::type<char[10]>>{}));
+// end-sample
+}
+
+{
 // sample(partition)
 // like std::partition!
 auto parts = hana::partition(animals, [](auto a) {
@@ -138,6 +156,18 @@ auto reversed = hana::reverse(animals);
 assert(reversed == hana::make_tuple(
     Fish{"Nemo"}, Dog{"Beethoven"}, Cat{"Garfield"}
 ));
+// end-sample
+}
+
+{
+// sample(unpack)
+auto names = hana::unpack(animals, [](auto ...a) {
+    return std::vector<std::string>{a.name...};
+});
+
+assert((names == std::vector<std::string>{"Garfield",
+                                          "Beethoven",
+                                          "Nemo"}));
 // end-sample
 }
 

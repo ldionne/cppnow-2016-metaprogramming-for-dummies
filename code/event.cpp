@@ -12,9 +12,9 @@ using namespace hana::literals;
 
 
 
-// sample(event_handler)
+// sample(event_system)
 template <typename EventMap>
-class event_handler {
+class event_system {
 public:
     template <typename Event, typename F>
     void on(Event e, F handler) {
@@ -38,21 +38,21 @@ private:
 };
 // end-sample
 
-// sample(make_event_handler)
+// sample(make_event_system)
 template <typename ...Events>
-auto make_event_handler(Events ...events) {
+auto make_event_system(Events ...events) {
     auto map = hana::make_map(
         hana::make_pair(events, std::vector<std::function<void()>>{})...
     );
 
-    return event_handler<decltype(map)>{};
+    return event_system<decltype(map)>{};
 }
 // end-sample
 
 
 int main() {
 // sample(usage)
-auto events = make_event_handler("foo"_s, "bar"_s, "baz"_s);
+auto events = make_event_system("foo"_s, "bar"_s, "baz"_s);
 
 events.on("foo"_s, []() { std::cout << "foo triggered!" << std::endl; });
 events.on("foo"_s, []() { std::cout << "foo triggered again!" << std::endl; });

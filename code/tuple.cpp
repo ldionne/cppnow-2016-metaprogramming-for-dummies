@@ -171,4 +171,18 @@ assert((names == std::vector<std::string>{"Garfield",
 // end-sample
 }
 
+{
+// sample(unpack-equiv)
+auto f = [](auto ...a) {
+    return std::vector<std::string>{a.name...};
+};
+
+auto names = f(animals[0_c], animals[1_c], animals[2_c]);
+// end-sample
+
+assert((names == std::vector<std::string>{"Garfield",
+                                          "Beethoven",
+                                          "Nemo"}));
+}
+
 }

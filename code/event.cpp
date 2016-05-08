@@ -18,16 +18,20 @@ class event_system {
 public:
     template <typename Event, typename F>
     void on(Event e, F handler) {
-        static_assert(decltype(hana::contains(map_, e)){},
+        auto is_known_event = hana::contains(map_, e);
+        static_assert(is_known_event,
             "trying to add a handler to an unknown event");
+
         map_[e].push_back(handler);
     }
 
     template <typename ...Events>
     void trigger(Events ...events) {
         hana::for_each(hana::make_tuple(events...), [this](auto e) {
-            static_assert(decltype(hana::contains(map_, e)){},
+            auto is_known_event = hana::contains(map_, e);
+            static_assert(is_known_event,
                 "trying to trigger an unknown event");
+
             for (auto& handler : this->map_[e])
                 handler();
         });

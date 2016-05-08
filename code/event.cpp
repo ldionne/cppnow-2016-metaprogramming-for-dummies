@@ -41,8 +41,9 @@ private:
 // sample(make_event_system)
 template <typename ...Events>
 auto make_event_system(Events ...events) {
+    using Callbacks = std::vector<std::function<void()>>;
     auto map = hana::make_map(
-        hana::make_pair(events, std::vector<std::function<void()>>{})...
+        hana::make_pair(events, Callbacks{})...
     );
 
     return event_system<decltype(map)>{};
@@ -54,10 +55,10 @@ int main() {
 // sample(usage)
 auto events = make_event_system("foo"_s, "bar"_s, "baz"_s);
 
-events.on("foo"_s, []() { std::cout << "foo triggered!" << std::endl; });
-events.on("foo"_s, []() { std::cout << "foo triggered again!" << std::endl; });
-events.on("bar"_s, []() { std::cout << "bar triggered!" << std::endl; });
-events.on("baz"_s, []() { std::cout << "baz triggered!" << std::endl; });
+events.on("foo"_s, []() { std::cout << "foo triggered!" << '\n'; });
+events.on("foo"_s, []() { std::cout << "foo again!" << '\n'; });
+events.on("bar"_s, []() { std::cout << "bar triggered!" << '\n'; });
+events.on("baz"_s, []() { std::cout << "baz triggered!" << '\n'; });
 // events.on("unknown"_s, []() { }); // compiler error!
 
 events.trigger("foo"_s, "bar"_s);

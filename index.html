@@ -363,17 +363,15 @@ Note:
 ```c++
 template <typename T>
 struct static_type_info {
-    static std::string name() { return typeid(T).name(); }
-    static std::size_t const size = sizeof(T);
-    static std::size_t const alignment = alignof(T);
-    // whatever...
+    using type = T;
 };
 
-void register_(std::vector<static_type_info<...>> const& classes) {
+void register_(std::vector<...> const& classes) {
     for (auto c : classes) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size << std::endl;
-        static_assert(c.size <= 1000, "");
+        using C = typename decltype(c)::type;
+        std::cout << "Registering " << typeid(C).name()
+                  << ", which is of size " << sizeof(C) << std::endl;
+        static_assert(sizeof(C) <= 1000, "");
     }
 }
 
@@ -391,30 +389,19 @@ of different types in the vector, which we can't do.
 
 ----
 
-### Solution: a heterogeneous vector
+### Solution: `std::tuple`!
 
 ```c++
-void register_(std::heterogeneous_vector<...> const& classes) {
+template <typename ...TypeInfos>
+void register_(std::tuple<TypeInfos...> const& classes) {
     for (auto c : classes) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size << std::endl;
-        static_assert(c.size <= 1000, "");
+        using C = typename decltype(c)::type;
+        std::cout << "Registering " << typeid(C).name()
+                  << ", which is of size " << sizeof(C) << std::endl;
+        static_assert(sizeof(C) <= 1000, "");
     }
 }
 
-int main() {
-    std::heterogeneous_vector<static_type_info<A>,
-                              static_type_info<B>,
-                              static_type_info<C>> classes;
-    register_(classes);
-}
-```
-
-----
-
-### Hey, but that's a tuple!
-
-```c++
 int main() {
     std::tuple<static_type_info<A>,
                static_type_info<B>,
@@ -422,21 +409,9 @@ int main() {
     register_(classes);
 }
 ```
-
 ----
 
-### We only have to make this work
-
-```c++
-template <typename ...T>
-void register_(std::tuple<T...> const& classes) {
-    for (auto c : classes) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size << std::endl;
-        static_assert(c.size <= 1000, "");
-    }
-}
-```
+### Now, we only need to iterate on a `std::tuple`
 
 ----
 
@@ -452,9 +427,10 @@ void register_(std::tuple<T...> const& classes) {
 template <typename ...T>
 void register_(std::tuple<T...> const& classes) {
     auto f = [](auto c) {
-        std::cout << "Registering " << c.name()
-                  << ", which is of size " << c.size << std::endl;
-        static_assert(c.size <= 1000, "");
+        using C = typename decltype(c)::type;
+        std::cout << "Registering " << typeid(C).name()
+                  << ", which is of size " << sizeof(C) << std::endl;
+        static_assert(sizeof(C) <= 1000, "");
     };
 
     f(std::get<0>(classes));
@@ -470,12 +446,11 @@ Recapitulating:
 2. We create a tuple of these type infos
 3. We manipulate the elements of the tuple as normal objects to achieve our goal
 
-====================
+----
 
-### `hana::type`
-#### A bit like our `static_type_info`
+### Hana provides this `static_type_info`
 
-<pre><code class="sample" sample="code/classreg_hana_type.cpp#main"></code></pre>
+<pre><code class="sample" sample="code/classreg_hana.cpp#main"></code></pre>
 
 ==============================================================================
 

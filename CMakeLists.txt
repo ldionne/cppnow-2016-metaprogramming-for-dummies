@@ -10,20 +10,20 @@ find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
 include(ExternalProject)
-ExternalProject_Add(Hana
-    GIT_REPOSITORY https://github.com/ldionne/hana
-    GIT_TAG origin/develop
-    TIMEOUT 10
-    CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-    PREFIX "${CMAKE_CURRENT_BINARY_DIR}"
+ExternalProject_Add(install-Hana EXCLUDE_FROM_ALL 1
+    URL https://github.com/boostorg/hana/archive/develop.zip
+    TIMEOUT 120
+    PREFIX "${CMAKE_CURRENT_BINARY_DIR}/dependencies/hana"
     CONFIGURE_COMMAND "" # Disable configure step
     BUILD_COMMAND ""     # Disable build step
-    UPDATE_COMMAND ""    # Disable update step
     INSTALL_COMMAND ""   # Disable install step
     TEST_COMMAND ""      # Disable test step
+    UPDATE_COMMAND ""    # Disable source work-tree update
 )
-ExternalProject_Get_Property(Hana SOURCE_DIR)
+ExternalProject_Get_Property(install-Hana SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
+
+add_custom_target(install-dependencies DEPENDS install-Hana)
 
 #=============================================================================
 # Setup compiler flags

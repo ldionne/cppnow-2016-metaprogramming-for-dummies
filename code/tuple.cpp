@@ -18,10 +18,6 @@ struct Dog      { std::string name; };
 struct Elephant { std::string name; };
 struct Fish     { std::string name; };
 // ... comparison operators ...
-
-hana::tuple<Cat, Dog, Fish> animals{
-    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
-};
 // end-sample
 
 bool operator==(Cat const& a, Cat const& b) { return a.name == b.name; }
@@ -38,23 +34,48 @@ bool operator!=(Fish const& a, Fish const& b) { return a.name != b.name; }
 
 int main() {
 
+{
 // sample(indexing)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 assert(animals[0_c] == Cat{"Garfield"});
 assert(animals[1_c] == Dog{"Beethoven"});
 assert(animals[2_c] == Fish{"Nemo"});
 // end-sample
+}
 
+{
 // sample(insert)
-auto more_animals = hana::insert(animals, 1_c, Elephant{"Dumbo"});
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
+hana::tuple<Cat, Elephant, Dog, Fish> more_animals =
+                hana::insert(animals, 1_c, Elephant{"Dumbo"});
 assert(more_animals[1_c] == Elephant{"Dumbo"}); // used to be Beethoven
 // end-sample
+}
 
+
+{
 // sample(remove_at)
-auto fewer_animals = hana::remove_at(animals, 1_c);
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
+hana::tuple<Cat, Fish> fewer_animals = hana::remove_at(animals, 1_c);
 assert(fewer_animals[1_c] == Fish{"Nemo"}); // used to be Beethoven
 // end-sample
+}
 
+{
 // sample(for_each)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 // like std::for_each!
 hana::for_each(animals, [](auto a) {
     std::cout << a.name << ' ';
@@ -62,9 +83,14 @@ hana::for_each(animals, [](auto a) {
 
 // outputs `Garfield Beethoven Nemo`
 // end-sample
+}
 
 {
 // sample(transform)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 // like std::transform!
 auto names = hana::transform(animals, [](auto a) {
     return a.name;
@@ -78,9 +104,13 @@ assert(names == hana::make_tuple(
 
 {
 // sample(remove_if)
+hana::tuple<Cat, Fish, Dog, Fish> animals{
+    Cat{"Garfield"}, Fish{"Jaws"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 // like std::remove_if!
 auto mammals = hana::remove_if(animals, [](auto a) {
-    return hana::is_a<Fish>(a);
+    return hana::decltype_(a) == hana::type<Fish>{};
 });
 
 assert(mammals == hana::make_tuple(Cat{"Garfield"}, Dog{"Beethoven"}));
@@ -106,13 +136,17 @@ assert((sorted == hana::tuple<hana::type<char[1]>,
 
 {
 // sample(partition)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}, Dog{"Lassie"}
+};
+
 // like std::partition!
 auto parts = hana::partition(animals, [](auto a) {
-    return hana::is_a<Dog>(a);
+    return hana::decltype_(a) == hana::type<Dog>{};
 });
 
 assert(hana::first(parts) ==
-    hana::make_tuple(Dog{"Beethoven"})
+    hana::make_tuple(Dog{"Beethoven"}, Dog{"Lassie"})
 );
 assert(hana::second(parts) ==
     hana::make_tuple(Cat{"Garfield"}, Fish{"Nemo"})
@@ -122,15 +156,19 @@ assert(hana::second(parts) ==
 
 {
 // sample(find_if)
+hana::tuple<Cat, Dog, Fish, Dog> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}, Dog{"Lassie"}
+};
+
 // similar to std::find_if
-auto garfield = hana::find_if(animals, [](auto a) {
-    return hana::is_a<Cat>(a);
+auto beethoven = hana::find_if(animals, [](auto a) {
+    return hana::decltype_(a) == hana::type<Dog>{};
 });
 
-assert(*garfield == Cat{"Garfield"});
+assert(*beethoven == Dog{"Beethoven"});
 
 auto not_found = hana::find_if(animals, [](auto a) {
-    return hana::is_an<int>(a);
+    return hana::decltype_(a) == hana::type<int>{};
 });
 
 assert(not_found == hana::nothing);
@@ -139,17 +177,25 @@ assert(not_found == hana::nothing);
 
 {
 // sample(count_if)
+hana::tuple<Cat, Dog, Fish, Dog> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}, Dog{"Lassie"}
+};
+
 // like std::count_if!
-auto n_mammals = hana::count_if(animals, [](auto a) {
-    return !hana::is_a<Fish>(a);
+auto dogs = hana::count_if(animals, [](auto a) {
+    return hana::decltype_(a) == hana::type<Dog>{};
 });
 
-assert(n_mammals == 2u);
+assert(dogs == 2u);
 // end-sample
 }
 
 {
 // sample(reverse)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 // like std::reverse!
 auto reversed = hana::reverse(animals);
 
@@ -161,6 +207,10 @@ assert(reversed == hana::make_tuple(
 
 {
 // sample(unpack)
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 auto names = hana::unpack(animals, [](auto ...a) {
     return std::vector<std::string>{a.name...};
 });
@@ -172,6 +222,10 @@ assert((names == std::vector<std::string>{"Garfield",
 }
 
 {
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
 // sample(unpack-equiv)
 auto f = [](auto ...a) {
     return std::vector<std::string>{a.name...};

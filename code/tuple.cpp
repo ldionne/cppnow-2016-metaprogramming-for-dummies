@@ -35,6 +35,19 @@ bool operator!=(Fish const& a, Fish const& b) { return a.name != b.name; }
 int main() {
 
 {
+// sample(setup)
+
+hana::tuple<Cat, Dog, Fish> animals{
+    Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+};
+
+auto animals2 = hana::make_tuple(
+  Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}
+);
+// end-sample
+}
+
+{
 // sample(indexing)
 hana::tuple<Cat, Dog, Fish> animals{
     Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}

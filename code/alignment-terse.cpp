@@ -11,7 +11,6 @@ namespace hana = boost::hana;
 using namespace hana::literals;
 
 
-// sample(setup)
 template <typename T, typename U, typename V>
 struct Triple {
     T first;
@@ -23,9 +22,6 @@ struct A { char data; };
 struct B { int data; };
 struct C { double data; };
 
-// What's the most packed layout?
-// end-sample
-
 // sample(main)
 template <typename Types>
 auto packed_triple(Types const& types) {
@@ -33,16 +29,11 @@ auto packed_triple(Types const& types) {
         return hana::alignof_(t) > hana::alignof_(u);
     });
 
-    auto triple = hana::unpack(sorted, [](auto ...t) {
-        using Answer = Triple<typename decltype(t)::type...>;
-        return hana::type<Answer>{};
-    });
-
-    return triple;
+    return hana::unpack(sorted, hana::template_<Triple>);
 }
 
 int main() {
-    hana::tuple<hana::type<A>, hana::type<B>, hana::type<C>> types;
+    auto types = hana::tuple_t<A, B, C>;
     using Packed = decltype(packed_triple(types))::type;
     Packed triple{/* ... */};
 }

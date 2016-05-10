@@ -12,10 +12,13 @@ using namespace hana::literals;
 
 
 
-// sample(event_system)
+// sample(event_system-1)
 template <typename EventMap>
-class event_system {
-public:
+struct event_system {
+    EventMap map_;
+// end-sample
+
+// sample(event_system-2)
     template <typename Event, typename F>
     void on(Event e, F handler) {
         auto is_known_event = hana::contains(map_, e);
@@ -24,7 +27,9 @@ public:
 
         map_[e].push_back(handler);
     }
+// end-sample
 
+// sample(event_system-3)
     template <typename ...Events>
     void trigger(Events ...events) {
         hana::for_each(hana::make_tuple(events...), [this](auto e) {
@@ -36,9 +41,6 @@ public:
                 handler();
         });
     }
-
-private:
-    EventMap map_;
 };
 // end-sample
 
@@ -46,11 +48,11 @@ private:
 template <typename ...Events>
 auto make_event_system(Events ...events) {
     using Callbacks = std::vector<std::function<void()>>;
-    auto map = hana::make_map(
+    using Map = decltype(hana::make_map(
         hana::make_pair(events, Callbacks{})...
-    );
+    ));
 
-    return event_system<decltype(map)>{};
+    return event_system<Map>{};
 }
 // end-sample
 

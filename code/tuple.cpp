@@ -149,7 +149,7 @@ assert((sorted == hana::tuple<hana::type<char[1]>,
 
 {
 // sample(partition)
-hana::tuple<Cat, Dog, Fish> animals{
+hana::tuple<Cat, Dog, Fish, Dog> animals{
     Cat{"Garfield"}, Dog{"Beethoven"}, Fish{"Nemo"}, Dog{"Lassie"}
 };
 

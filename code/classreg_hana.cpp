@@ -16,14 +16,14 @@ class B { };
 class C { };
 
 // sample(register)
-template <typename ...T>
-void register_(std::tuple<T...> const& classes) {
+template <typename ...TypeInfos>
+void register_(std::tuple<TypeInfos...> const& classes) {
     // like std::for_each!
     hana::for_each(classes, [](auto c) {
-        using C = typename decltype(c)::type;
-        std::cout << "Registering " << typeid(C).name()
-                  << ", which is of size " << sizeof(C) << std::endl;
-        static_assert(sizeof(C) <= 1000, "");
+        using T = typename decltype(c)::type;
+        std::cout << "Registering " << typeid(T).name()
+                  << ", which is of size " << sizeof(T) << std::endl;
+        static_assert(sizeof(T) <= 1000, "");
     });
 }
 // end-sample

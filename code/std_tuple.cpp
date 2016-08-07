@@ -7,10 +7,10 @@
 
 // sample(spherical)
 std::tuple<double, double, double>
-from_spherical(double r, double theta, double phi) {
-    double x = r * std::sin(theta) * std::cos(phi);
-    double y = r * std::sin(phi) * std::sin(phi);
-    double z = r * std::cos(theta);
+from_spherical(double rho, double theta, double phi) {
+    double x = rho * std::sin(theta) * std::cos(phi);
+    double y = rho * std::sin(theta) * std::sin(phi);
+    double z = rho * std::cos(theta);
     return {x, y, z};
 }
 
